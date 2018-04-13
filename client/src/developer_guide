@@ -6,7 +6,25 @@ log in to aws console
 go to cognito
 go to manage my user pool
 create/go to your user pool
+set the aws_user_pools_id aws_config.js variable to your user pool id
 federation-> identity providers -> select facebook
 add appId and appSecret
+set profile and email as user info to be read
+federation -> attribute mapping
+map the email to be the facebook Email
 go to general settings -> app clients
-create/select your app and take note of the appID
+create/select your app and take note of the appID -> you will set it to aws-config.js[aws_app_client_id]
+go to app client settings and scroll to you selected app
+enable all identity providers
+set the callback URL to be http://localhost:8100
+flag the Allowed OAuth Flows  -> authorization code grand
+flag the Allowed OAuth Scopes -> email, openid 
+go to app integration -> domain name
+set the aws_domain_name variable to the domain name
+got to cognito-> manage federate identities
+go to your identity pool
+edit identity pool
+set the aws_cognito_identity_pool_id variable to be you identity pool id
+go to authentication providers -> facebook
+set the app id
+take note of the region of you identity pool and set accordingly the value of the variable aws_cognito_region in aws_config.js

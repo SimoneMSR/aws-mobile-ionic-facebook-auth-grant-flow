@@ -7,7 +7,8 @@ import { InAppBrowser } from '@ionic-native/in-app-browser';
 import { Http, Headers, RequestOptions, URLSearchParams } from '@angular/http';
 
 
-declare var FB :any;
+declare var aws_domain_name:any;
+declare var appClientId : any;
 
 
 @Component({
@@ -23,8 +24,8 @@ export class LoginModal {
   error: string
   facebook_login_error : boolean
 
-  COGNITO_POOL_URL : string  = 'https://ioniclogin.auth.eu-west-1.amazoncognito.com'
-  COGNITO_CLIENT_ID : string = '7no06cfnkftjbk3hpp1e9ti0rp'
+  COGNITO_POOL_URL : string  = aws_domain_name;
+  COGNITO_CLIENT_ID : string = appClientId;
 
   constructor(public navCtrl: NavController, 
     public navParams: NavParams, 

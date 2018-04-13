@@ -24,6 +24,7 @@ export let AuthServiceProvider = {
 }
 
 declare var AWS: any;
+declare var appClientId :any;
 
 @Injectable()
 export class AuthService {
@@ -35,7 +36,7 @@ export class AuthService {
   private _signoutSubject: Subject<string> = new Subject<string>()
   private _signinSubject: Subject<string> = new Subject<string>()
 
-  private appId = '7no06cfnkftjbk3hpp1e9ti0rp';
+  private appId = appClientId;
   private userPoolId = 'eu-west-1_oRXrKiH7B';
   private identityPoolId = 'eu-west-1:a3efcd32-25f8-4e05-a01d-769dc516890e';
 
