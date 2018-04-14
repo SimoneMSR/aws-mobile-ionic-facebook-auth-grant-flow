@@ -8,7 +8,7 @@ import { Http, Headers, RequestOptions, URLSearchParams } from '@angular/http';
 
 
 declare var aws_domain_name:any;
-declare var appClientId : any;
+declare var aws_app_client_id : any;
 
 
 @Component({
@@ -25,7 +25,7 @@ export class LoginModal {
   facebook_login_error : boolean
 
   COGNITO_POOL_URL : string  = aws_domain_name;
-  COGNITO_CLIENT_ID : string = appClientId;
+  COGNITO_CLIENT_ID : string = aws_app_client_id;
 
   constructor(public navCtrl: NavController, 
     public navParams: NavParams, 

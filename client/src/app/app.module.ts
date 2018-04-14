@@ -17,13 +17,13 @@ import { AddTaskModal } from '../modal/addtask/addtask'
 import { AwsConfig } from './app.config'
 import { AuthService, AuthServiceProvider } from './auth.service'
 import { EventsService, EventsServiceProvider } from './events.service'
+import { UserStore, UserStoreProvider} from './user.store.ts'
 import { Sigv4Http, Sigv4HttpProvider } from './sigv4.service'
 
 import { momentFromNowPipe } from './momentFromNow.pipe'
 
 import { IonicStorageModule } from '@ionic/storage';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
-import { AppEventsProvider } from '../providers/app-events/app-events';
 
 @NgModule({
   declarations: [
@@ -55,9 +55,9 @@ import { AppEventsProvider } from '../providers/app-events/app-events';
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     AuthService, AuthServiceProvider,
     EventsService, EventsServiceProvider,
+    UserStore, UserStoreProvider,
     Sigv4Http, Sigv4HttpProvider,
-    InAppBrowser,
-    AppEventsProvider
+    InAppBrowser
   ]
 })
 export class AppModule {}
