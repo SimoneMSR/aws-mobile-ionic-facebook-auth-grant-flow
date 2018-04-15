@@ -9,7 +9,7 @@ import { Http, Headers, RequestOptions, URLSearchParams } from '@angular/http';
 
 declare var aws_domain_name:any;
 declare var aws_app_client_id : any;
-
+declare var aws_app_client_redirect_uri : any;
 
 @Component({
   selector: 'modal-login',
@@ -26,6 +26,7 @@ export class LoginModal {
 
   COGNITO_POOL_URL : string  = aws_domain_name;
   COGNITO_CLIENT_ID : string = aws_app_client_id;
+  COGNITO_REDIRECT_URI : string = aws_app_client_redirect_uri;
 
   constructor(public navCtrl: NavController, 
     public navParams: NavParams, 
@@ -50,9 +51,9 @@ export class LoginModal {
   }
 
   startFacebookOauth(){
-    var login_page = this.browser.create( this.COGNITO_POOL_URL + '/login?response_type=code&client_id=' + this.COGNITO_CLIENT_ID + '&redirect_uri=http://localhost:8100/');
+    var login_page = this.browser.create( this.COGNITO_POOL_URL + '/login?response_type=code&client_id=' + this.COGNITO_CLIENT_ID + '&redirect_uri=' + this.COGNITO_REDIRECT_URI);
     login_page.on('loadstop').subscribe(event => {
-      if(event.url.startsWith('http://localhost:8100')){
+      if(event.url.startsWith(this.COGNITO_REDIRECT_URI)){
         var auth_code = event.url.split('code=')[1].split('#')[0];
         login_page.close();
         if(auth_code == null)
@@ -70,12 +71,12 @@ export class LoginModal {
     let body = new URLSearchParams();
     body.set('grant_type','authorization_code');
     body.set('client_id',this.COGNITO_CLIENT_ID);
-    body.set('redirect_uri','http://localhost:8100/' );
+    body.set('redirect_uri',this.COGNITO_REDIRECT_URI );
     body.set('code',authorization_code);
     let postParams = {
       grant_type: 'authorization_code',
       client_id: this.COGNITO_CLIENT_ID,
-      redirect_uri: 'http://localhost:8100/',
+      redirect_uri: this.COGNITO_REDIRECT_URI,
       code : authorization_code
     }
     //postParams = [{"key":"grant_type","value":"authorization_code"},{"key":"client_id","value":this.COGNITO_CPLIENT_ID},{"key":"redirect_uri","value":"https://www.amazon.com"},{"key":"code","value":authorization_code}];

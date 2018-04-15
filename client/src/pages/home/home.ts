@@ -21,6 +21,8 @@ import 'rxjs/add/operator/finally';
 export class HomePage {
 
   public next_refresh : string;
+  private SAVE_SUCCESS_MESSAGE = 'Cretentials saved on DynamoDB.';
+  private SAVE_ERROR_MESSAGE ='Error while saving cretentials on DynamoDB.';
 
   constructor(
     public navCtrl: NavController,
@@ -70,13 +72,18 @@ export class HomePage {
   save(){
     this.userStore.saveCurrentUser()
       .subscribe((success) => {
-
+          if(success['status'] === 200)
+            this.presentToast(this.SAVE_SUCCESS_MESSAGE);
+          else
+            this.presentToast(this.SAVE_ERROR_MESSAGE);
+      }, (error) => {
+            this.presentToast(this.SAVE_ERROR_MESSAGE);
       });
   }
 
   presentToast(message) {
       let toast = this.toastCtrl.create({
-        message: 'message',
+        message: message,
         duration: 3000,
         position: 'middle'
       });

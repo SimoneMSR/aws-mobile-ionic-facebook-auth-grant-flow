@@ -25,6 +25,8 @@ export let AuthServiceProvider = {
 
 declare var AWS: any;
 declare var aws_app_client_id :any;
+declare var aws_cognito_identity_pool_id : any;
+declare var aws_user_pools_id : any;
 
 @Injectable()
 export class AuthService {
@@ -37,8 +39,8 @@ export class AuthService {
   private _signinSubject: Subject<string> = new Subject<string>()
 
   private appId = aws_app_client_id;
-  private userPoolId = 'eu-west-1_oRXrKiH7B';
-  private identityPoolId = 'eu-west-1:a3efcd32-25f8-4e05-a01d-769dc516890e';
+  private userPoolId = aws_user_pools_id;
+  private identityPoolId = aws_cognito_identity_pool_id;
 
   constructor(private config: AppConfig) {
     AWS.config.region = this.config.get('region');

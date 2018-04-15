@@ -27,7 +27,7 @@ export class UserStore {
   private endpoint:string;
 
   constructor (private sigv4: Sigv4Http, private auth: AuthService, private config: Config) {
-    this.endpoint = 'https://vrs8bsy3e8.execute-api.us-east-1.amazonaws.com/prod/';
+    this.endpoint = 'https://vrs8bsy3e8.execute-api.us-east-1.amazonaws.com/prod';
   }
 
   saveCurrentUser () : Observable<any> {
@@ -35,7 +35,7 @@ export class UserStore {
     let body = {
           "user": {
             "name": "example",
-            "birthday": 151326724100,
+            "birthday": 'example',
             "email": idTokenPayload.email,
             "phone": "example",
             "zip": "example",
@@ -44,6 +44,10 @@ export class UserStore {
             "civil-state": "example"
           }
         };
-    return  this.auth.getCredentials().map(creds => this.sigv4.put(this.endpoint, 'userinfo', body,creds)).concatAll().share();
+
+    return  this.auth.getCredentials().map(creds => {
+      creds['idToken'] = this.auth.cognitoUser.getSignInUserSession().getIdToken().getJwtToken();
+      return creds;
+    }).map(creds => this.sigv4.put(this.endpoint, 'userinfo', body,creds)).concatAll().share();
   }
 }
