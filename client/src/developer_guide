@@ -16,7 +16,8 @@ go to general settings -> app clients
 create/select your app and take note of the appID -> you will set it to aws-config.js[aws_app_client_id]
 go to app client settings and scroll to you selected app
 enable all identity providers
-set the callback URL to be http://localhost:8100
+set the callback URL to 
+be http://localhost:8100
 flag the Allowed OAuth Flows  -> authorization code grand
 flag the Allowed OAuth Scopes -> email, openid 
 go to app integration -> domain name
