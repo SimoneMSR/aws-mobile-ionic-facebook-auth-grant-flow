@@ -20,8 +20,9 @@
   </ion-card>
   <div *ngIf="auth.isUserSignedIn()">
     <div>
-      <h1 text-center class="xxl soft">Welcome</h1>
-      <p>Your new session refresh will start at {{next_refresh}}</p>
+      <h3 text-center class="xxl">Welcome</h3>
+      <img *ngIf="avatar" [src]="avatar"/>
+      <p>Your new session refresh will start at {{next_refresh}}, or with a swipe.</p>
       <button ion-button full color="primary" (click)="save()">
         SAVE
       </button>

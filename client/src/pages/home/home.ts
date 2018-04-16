@@ -23,6 +23,7 @@ export class HomePage {
   public next_refresh : string;
   private SAVE_SUCCESS_MESSAGE = 'Cretentials saved on DynamoDB.';
   private SAVE_ERROR_MESSAGE ='Error while saving cretentials on DynamoDB.';
+  public avatar : string;
 
   constructor(
     public navCtrl: NavController,
@@ -33,13 +34,24 @@ export class HomePage {
     private toastCtrl : ToastController) {
 
       this.events.userLogged.subscribe(() => {
-        this.showSessionExpiration();
+        this.showSessionExpiration().subscribe();
+        this.loadAvatar()
       });
     }
 
+  private loadAvatar(){
+        this.auth.cognitoUser.getUserAttributes((error, attributes) => {
+          if(!error){
+              this.avatar = JSON.parse(attributes.filter(x => x.getName() === 'picture')[0].getValue()).data.url;
+          }
+        });
+  }
+
   ionViewDidLoad() {
-    if(this.auth.isUserSignedIn())
+    if(this.auth.isUserSignedIn()){
       this.showSessionExpiration().subscribe();
+      this.loadAvatar();
+    }
   }
 
   doRefresh (refresher) {
@@ -47,7 +59,8 @@ export class HomePage {
       this.showSessionExpiration().subscribe(() => {
         refresher.complete();
       });
-    }
+    }else
+      refresher.complete();
   }
 
   private showSessionExpiration(){

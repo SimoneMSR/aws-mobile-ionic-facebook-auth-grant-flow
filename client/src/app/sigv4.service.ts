@@ -60,16 +60,16 @@ export class Sigv4Http {
     }
 
     let aws4Sign = aws4.sign(
-      aws4Options//,
-      //{secretAccessKey: credentials.secretAccessKey, accessKeyId: credentials.accessKeyId, sessionToken: credentials.sessionToken }
+      aws4Options,
+      {secretAccessKey: credentials.secretAccessKey, accessKeyId: credentials.accessKeyId, sessionToken: credentials.sessionToken }
     )
     aws4Sign.url = reqEndpoint + path
     if(headers['Content-Type'] === undefined) { headers['Content-Type'] = DEFAULT_TYPE }
-    //enable Identity Pool
-    headers['Authorization'] =   credentials.idToken;
+    if( credentials.idToken !== null)
+      //enable Identity Pool
+      headers['Authorization'] =   credentials.idToken;
     delete headers['Host']
     delete headers['Content-Length']
-    console.log(aws4Sign)
     return this.http.request(new Request(aws4Sign))
   }
 }

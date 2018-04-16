@@ -4,7 +4,6 @@ import { AuthService } from '../../app/auth.service'
 import { EventsService } from '../../app/events.service'
 import {Storage} from '@ionic/storage';
 import { InAppBrowser } from '@ionic-native/in-app-browser';
-import { Http, Headers, RequestOptions, URLSearchParams } from '@angular/http';
 
 
 declare var aws_domain_name:any;
@@ -35,8 +34,7 @@ export class LoginModal {
     public events : EventsService,
     private platform : Platform,
     private storage : Storage,
-    private browser : InAppBrowser,
-    private http : Http) {}
+    private browser : InAppBrowser) {}
 
   ionViewDidLoad() {
    }
@@ -59,40 +57,22 @@ export class LoginModal {
         if(auth_code == null)
           this.facebook_login_error = true;
         else
-          this.oauthRequestToken(auth_code);
+          this.auth.oauthRequestToken(auth_code)
+          .subscribe(data => {
+              try{
+                this.auth.setFacebookSession(data.json());
+                this.events.userLoggedId();
+                this.dismiss();
+              }catch(error){
+                this.setError(error.toString());
+              }
+             }, error => {
+              this.setError(error.text());
+          });
     }
     });
   }
 
-  oauthRequestToken(authorization_code){
-    var headers = new Headers();
-    headers.append('Content-Type', 'application/x-www-form-urlencoded' );
-    let options = new RequestOptions({ headers: headers });
-    let body = new URLSearchParams();
-    body.set('grant_type','authorization_code');
-    body.set('client_id',this.COGNITO_CLIENT_ID);
-    body.set('redirect_uri',this.COGNITO_REDIRECT_URI );
-    body.set('code',authorization_code);
-    let postParams = {
-      grant_type: 'authorization_code',
-      client_id: this.COGNITO_CLIENT_ID,
-      redirect_uri: this.COGNITO_REDIRECT_URI,
-      code : authorization_code
-    }
-    //postParams = [{"key":"grant_type","value":"authorization_code"},{"key":"client_id","value":this.COGNITO_CPLIENT_ID},{"key":"redirect_uri","value":"https://www.amazon.com"},{"key":"code","value":authorization_code}];
-    this.http.post(this.COGNITO_POOL_URL + "/oauth2/token", body.toString(), options)
-      .subscribe(data => {
-        try{
-          this.auth.setFacebookSession(data.json());
-          this.events.userLoggedId();
-          this.dismiss();
-        }catch(error){
-          this.setError(error.toString());
-        }
-       }, error => {
-        this.setError(error.text());
-      });
-  }
 
   register () {
     this.auth.register(this.credentials).then((user) => {

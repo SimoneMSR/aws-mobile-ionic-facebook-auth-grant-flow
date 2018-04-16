@@ -11,6 +11,8 @@ import * as _keyBy from 'lodash.keyby'
 import * as _values from 'lodash.values'
 import { Config } from 'ionic-angular'
 import { AuthService } from './auth.service'
+import { CognitoUserAttribute} from "amazon-cognito-identity.js"
+import { fromPromise } from 'rxjs/observable/fromPromise';
 
 let userStoreFactory = (sigv4: Sigv4Http, auth: AuthService, config: Config) => { return new UserStore(sigv4, auth, config) }
 
@@ -31,23 +33,38 @@ export class UserStore {
   }
 
   saveCurrentUser () : Observable<any> {
-    let idTokenPayload = this.auth.cognitoUser.getSignInUserSession().getIdToken()['decodePayload']();
-    let body = {
-          "user": {
-            "name": "example",
-            "birthday": 'example',
-            "email": idTokenPayload.email,
-            "phone": "example",
-            "zip": "example",
-            "schoolar": "example",
-            "salary": "example",
-            "civil-state": "example"
-          }
-        };
-
-    return  this.auth.getCredentials().map(creds => {
-      creds['idToken'] = this.auth.cognitoUser.getSignInUserSession().getIdToken().getJwtToken();
-      return creds;
-    }).map(creds => this.sigv4.put(this.endpoint, 'userinfo', body,creds)).concatAll().share();
+    let that = this;
+    let retval = new Promise((resolve, reject) => {
+      this.auth.cognitoUser.getUserAttributes(function(error,attributes){
+            if(error)
+              reject(error);
+            else{
+                that.auth.getCredentials().subscribe(creds => {
+                    let idToken = that.auth.cognitoUser.getSignInUserSession().getIdToken();
+                    let name = attributes.filter(x => x.getName() === 'name')[0].getValue() + " " + attributes.filter(x => x.getName() === 'family_name')[0].getValue();
+                    let email = attributes.filter(x => x.getName() === 'email')[0].getValue();
+                    let body = {
+                        "user": {
+                          "name": name,
+                          "birthday": 'example',
+                          "email": email,
+                          "phone": "example",
+                          "zip": "example",
+                          "schoolar": "example",
+                          "salary": "example",
+                          "civil-state": "example"
+                        }
+                      };
+                    creds['idToken'] = idToken.getJwtToken();
+                    that.sigv4.put(that.endpoint, 'userinfo', body,creds).subscribe((response) =>{
+                      resolve(response);
+                    }, (error) => {
+                      reject(error);
+                    });
+                })
+            }
+        });
+      });
+    return fromPromise(retval);
   }
 }

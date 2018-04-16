@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core'
 import { Config as AppConfig } from 'ionic-angular'
+import { Http, Headers, RequestOptions, URLSearchParams } from '@angular/http';
 
 import { CognitoUser, 
   CognitoUserPool, 
@@ -15,7 +16,7 @@ import { Subject } from 'rxjs/Subject'
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/observable/from'
 
-let authServiceFactory = (config: AppConfig) => { return new AuthService(config) }
+let authServiceFactory = (config: AppConfig, http: Http) => { return new AuthService(config,http) }
 
 export let AuthServiceProvider = {
   provide: AuthService,
@@ -27,6 +28,8 @@ declare var AWS: any;
 declare var aws_app_client_id :any;
 declare var aws_cognito_identity_pool_id : any;
 declare var aws_user_pools_id : any;
+declare var aws_domain_name : any;
+declare var aws_app_client_redirect_uri : any;
 
 @Injectable()
 export class AuthService {
@@ -41,8 +44,11 @@ export class AuthService {
   private appId = aws_app_client_id;
   private userPoolId = aws_user_pools_id;
   private identityPoolId = aws_cognito_identity_pool_id;
+  COGNITO_POOL_URL : string  = aws_domain_name;
+  COGNITO_CLIENT_ID : string = aws_app_client_id;
+  COGNITO_REDIRECT_URI : string = aws_app_client_redirect_uri;
 
-  constructor(private config: AppConfig) {
+  constructor(private config: AppConfig, private http:Http) {
     AWS.config.region = this.config.get('region');
     this.poolData = { UserPoolId: this.userPoolId, ClientId: this.appId }
     this.userPool = new CognitoUserPool(this.poolData)
@@ -203,11 +209,31 @@ export class AuthService {
   }
 
   setFacebookSession(codes) {
-    var user = this.getNewCognitoUser({username : 'facebook user', });
   var session = new CognitoUserSession({ 'IdToken' : new CognitoIdToken( { 'IdToken': codes.id_token}),
       'RefreshToken' : new CognitoRefreshToken({'RefreshToken' : codes.refresh_token}),
       'AccessToken' : new CognitoAccessToken({'AccessToken' : codes.access_token})});
+    var username = session.getIdToken()['decodePayload'].username;
+    var user = this.getNewCognitoUser({username : username });
     user.setSignInUserSession(session);
     this.saveCreds(session, user);
+  }
+
+  oauthRequestToken(authorization_code){
+    var headers = new Headers();
+    headers.append('Content-Type', 'application/x-www-form-urlencoded' );
+    let options = new RequestOptions({ headers: headers });
+    let body = new URLSearchParams();
+    body.set('grant_type','authorization_code');
+    body.set('client_id',this.COGNITO_CLIENT_ID);
+    body.set('redirect_uri',this.COGNITO_REDIRECT_URI );
+    body.set('code',authorization_code);
+    let postParams = {
+      grant_type: 'authorization_code',
+      client_id: this.COGNITO_CLIENT_ID,
+      redirect_uri: this.COGNITO_REDIRECT_URI,
+      code : authorization_code
+    }
+    //postParams = [{"key":"grant_type","value":"authorization_code"},{"key":"client_id","value":this.COGNITO_CPLIENT_ID},{"key":"redirect_uri","value":"https://www.amazon.com"},{"key":"code","value":authorization_code}];
+    return this.http.post(this.COGNITO_POOL_URL + "/oauth2/token", body.toString(), options);
   }
 }
