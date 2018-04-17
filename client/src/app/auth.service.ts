@@ -212,7 +212,7 @@ export class AuthService {
   var session = new CognitoUserSession({ 'IdToken' : new CognitoIdToken( { 'IdToken': codes.id_token}),
       'RefreshToken' : new CognitoRefreshToken({'RefreshToken' : codes.refresh_token}),
       'AccessToken' : new CognitoAccessToken({'AccessToken' : codes.access_token})});
-    var username = session.getIdToken()['decodePayload'].username;
+    var username = session.getIdToken()['decodePayload']()['cognito:username'];
     var user = this.getNewCognitoUser({username : username });
     user.setSignInUserSession(session);
     this.saveCreds(session, user);
